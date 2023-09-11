@@ -142,6 +142,11 @@ open class ClusterManager {
         }
     }
     
+    /**
+     Whether the cluster manager is calculating annotations.
+     */
+    open var isLoading: Bool = false
+    
     let operationQueue = OperationQueue.serial
     let dispatchQueue = DispatchQueue(label: "com.cluster.concurrentQueue", attributes: .concurrent)
     
@@ -243,6 +248,7 @@ open class ClusterManager {
         operationQueue.addBlockOperation { [weak self, weak mapView] operation in
             guard let self = self, let mapView = mapView else { return completion(false) }
             autoreleasepool {
+                self.isLoading = true
                 let (toAdd, toRemove) = self.clusteredAnnotations(zoomScale: zoomScale, visibleMapRect: visibleMapRect, operation: operation)
                 DispatchQueue.main.async { [weak self, weak mapView] in
                     guard let self = self, let mapView = mapView else { return completion(false) }
@@ -250,6 +256,9 @@ open class ClusterManager {
                     completion(true)
                 }
             }
+        }
+        operationQueue.addBlockOperation { [weak self] operation in
+            self?.isLoading = false
         }
     }
     
