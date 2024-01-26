@@ -128,6 +128,12 @@ open class ClusterManager {
         }
     }
     
+    open func annotations(in rect: MKMapRect) -> [MKAnnotation] {
+        return dispatchQueue.sync {
+            tree.annotations(in: rect)
+        }
+    }
+    
     /**
      The list of visible annotations associated.
      */
